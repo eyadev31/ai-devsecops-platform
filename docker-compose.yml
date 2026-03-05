@@ -1,0 +1,23 @@
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - user_service
+      - portfolio_service
+    networks:
+      - app_network
+
+  user_service:
+    build: ./user_service
+    networks:
+      - app_network
+
+  portfolio_service:
+    build: ./portfolio_service
+    networks:
+      - app_network
+
+networks:
+  app_network:
