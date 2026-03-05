@@ -1,4 +1,4 @@
-name: DevSecOps CI Pipeline
+name: DevSecOps CI
 
 on:
   push:
@@ -6,29 +6,31 @@ on:
 
 jobs:
 
-  build:
+  security-scan:
     runs-on: ubuntu-latest
 
     steps:
 
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Python
+    - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.10"
+        python-version: 3.10
 
-    - name: Install dependencies
+    - name: Install security tools
       run: |
-        pip install fastapi uvicorn pytest
+        pip install bandit
 
-    - name: Run tests
+    - name: Run Bandit (Python security scan)
       run: |
-        echo "Tests OK"
+        bandit -r .
 
-    - name: Build Docker images
-      run: |
-        docker build -t user_service ./user_service
-        docker build -t portfolio_service ./portfolio_service
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: fs
+        scan-ref: .
+
 
