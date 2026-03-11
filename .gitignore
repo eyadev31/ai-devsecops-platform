@@ -1,0 +1,11 @@
+.venv/
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+*.tfstate
+*.tfstate.backup
+portfolio_mind_mobile/build/
+portfolio_mind_mobile/.dart_tool/
+portfolio_mind_mobile/.flutter-plugins
+portfolio_mind_mobile/.flutter-plugins-dependencies
+portfolio_mind_mobile/.packages
