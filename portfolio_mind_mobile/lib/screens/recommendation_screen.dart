@@ -1,70 +1,89 @@
 import 'package:flutter/material.dart';
+import '../models/recommendation.dart';
+import '../services/api_service.dart';
 
-class RecommendationScreen extends StatelessWidget {
+class RecommendationScreen extends StatefulWidget {
   const RecommendationScreen({super.key});
 
   @override
+  State<RecommendationScreen> createState() => _RecommendationScreenState();
+}
+
+class _RecommendationScreenState extends State<RecommendationScreen> {
+  final ApiService _apiService = ApiService();
+  late Future<Recommendation> _futureRecommendation;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureRecommendation = _apiService.getRecommendation(1);
+  }
+
+  IconData _getAgentIcon(String name) {
+    if (name.contains('Macro')) return Icons.public;
+    if (name.contains('Behavior')) return Icons.psychology;
+    if (name.contains('Allocation')) return Icons.auto_graph;
+    if (name.contains('Risk')) return Icons.shield;
+    if (name.contains('News')) return Icons.newspaper;
+    return Icons.smart_toy;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ListView(
-        children: const [
-          Text(
-            'Recommandation IA',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 16),
+    return FutureBuilder<Recommendation>(
+      future: _futureRecommendation,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.public),
-              title: Text('Agent 1 - Macro Context Analyzer'),
-              subtitle: Text('Analyse du contexte macroéconomique et marché'),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.psychology),
-              title: Text('Agent 2 - User Behavior Profiler'),
-              subtitle: Text('Analyse du profil investisseur'),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.auto_graph),
-              title: Text('Agent 3 - Portfolio Allocation Optimizer'),
-              subtitle: Text('Optimisation de l’allocation du portefeuille'),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.shield),
-              title: Text('Agent 4 - Risk Oversight & Validation'),
-              subtitle: Text('Contrôle du risque et validation'),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.newspaper),
-              title: Text('Agent 5 - News Sentiment Agent'),
-              subtitle: Text('Analyse des actualités et du sentiment'),
-            ),
-          ),
+        if (snapshot.hasError) {
+          return Center(child: Text('Erreur: ${snapshot.error}'));
+        }
 
-          SizedBox(height: 20),
+        if (!snapshot.hasData) {
+          return const Center(child: Text('Aucune donnée'));
+        }
 
-          Card(
-            color: Colors.deepPurpleAccent,
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Recommandation actuelle : portefeuille diversifié, profil modéré, exposition équilibrée entre actions, ETF, crypto et cash.',
-                style: TextStyle(color: Colors.white, fontSize: 16),
+        final recommendation = snapshot.data!;
+
+        return ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            const Text(
+              'Recommandation IA',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            ...recommendation.agents.map(
+              (agent) => Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                child: ListTile(
+                  leading: Icon(_getAgentIcon(agent.name)),
+                  title: Text(agent.name),
+                  subtitle: Text(agent.description),
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Text(
+                recommendation.summary,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

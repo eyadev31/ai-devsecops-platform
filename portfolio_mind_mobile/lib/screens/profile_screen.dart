@@ -1,49 +1,86 @@
 import 'package:flutter/material.dart';
+import '../models/user_profile.dart';
+import '../services/api_service.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final ApiService _apiService = ApiService();
+  late Future<UserProfile> _futureProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureProfile = _apiService.getUserProfile(1);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ListView(
-        children: const [
-          Text(
-            'Profil investisseur',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 16),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Nom'),
-              subtitle: Text('Eya Khalfallah'),
+    return FutureBuilder<UserProfile>(
+      future: _futureProfile,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text('Erreur: ${snapshot.error}'));
+        }
+
+        if (!snapshot.hasData) {
+          return const Center(child: Text('Aucune donnée'));
+        }
+
+        final profile = snapshot.data!;
+
+        return ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            const Text(
+              'Profil investisseur',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-          ),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.trending_up),
-              title: Text('Tolérance au risque'),
-              subtitle: Text('Modérée'),
+            const SizedBox(height: 20),
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              child: ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('Nom'),
+                subtitle: Text(profile.name),
+              ),
             ),
-          ),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.schedule),
-              title: Text('Horizon d’investissement'),
-              subtitle: Text('Long terme'),
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              child: ListTile(
+                leading: const Icon(Icons.trending_up),
+                title: const Text('Tolérance au risque'),
+                subtitle: Text(profile.riskLevel),
+              ),
             ),
-          ),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.flag),
-              title: Text('Objectif'),
-              subtitle: Text('Croissance et diversification'),
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              child: ListTile(
+                leading: const Icon(Icons.schedule),
+                title: const Text('Horizon d’investissement'),
+                subtitle: Text(profile.horizon),
+              ),
             ),
-          ),
-        ],
-      ),
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              child: ListTile(
+                leading: const Icon(Icons.flag),
+                title: const Text('Objectif'),
+                subtitle: Text(profile.objective),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
