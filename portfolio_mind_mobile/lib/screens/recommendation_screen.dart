@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/recommendation.dart';
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
+import '../utils/app_constants.dart';
 
 class RecommendationScreen extends StatefulWidget {
   const RecommendationScreen({super.key});
@@ -10,80 +11,164 @@ class RecommendationScreen extends StatefulWidget {
 }
 
 class _RecommendationScreenState extends State<RecommendationScreen> {
-  final ApiService _apiService = ApiService();
-  late Future<Recommendation> _futureRecommendation;
+  final ApiService apiService = ApiService();
+
+  Map<String, dynamic>? recommendation;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _futureRecommendation = _apiService.getRecommendation(1);
+    loadRecommendation();
   }
 
-  IconData _getAgentIcon(String name) {
-    if (name.contains('Macro')) return Icons.public;
-    if (name.contains('Behavior')) return Icons.psychology;
-    if (name.contains('Allocation')) return Icons.auto_graph;
-    if (name.contains('Risk')) return Icons.shield;
-    if (name.contains('News')) return Icons.newspaper;
-    return Icons.smart_toy;
+  Future<void> loadRecommendation() async {
+    try {
+      final data = await apiService.getRecommendation(1);
+
+      setState(() {
+        recommendation = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Recommendation>(
-      future: _futureRecommendation,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("AI Recommendation"),
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : recommendation == null
+              ? const Center(child: Text("No recommendation"))
+              : buildRecommendation(),
+    );
+  }
 
-        if (snapshot.hasError) {
-          return Center(child: Text('Erreur: ${snapshot.error}'));
-        }
+  Widget buildRecommendation() {
+    final agents = recommendation!["agents"];
 
-        if (!snapshot.hasData) {
-          return const Center(child: Text('Aucune donnée'));
-        }
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
 
-        final recommendation = snapshot.data!;
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-        return ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            const Text(
-              'Recommandation IA',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            ...recommendation.agents.map(
-              (agent) => Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                child: ListTile(
-                  leading: Icon(_getAgentIcon(agent.name)),
-                  title: Text(agent.name),
-                  subtitle: Text(agent.description),
-                ),
+                  const Text(
+                    "AI Portfolio Recommendation",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Text(recommendation!["summary"]),
+
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    "Risk Score",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  const LinearProgressIndicator(
+                    value: 0.65,
+                    minHeight: 10,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    "Confidence Score",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  const LinearProgressIndicator(
+                    value: 0.82,
+                    minHeight: 10,
+                    color: Colors.green,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.deepPurple,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Text(
-                recommendation.summary,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+          ),
+
+          const SizedBox(height: 30),
+
+          const Text(
+            "AI Agents",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        );
-      },
+          ),
+
+          const SizedBox(height: 10),
+
+          ...agents.map<Widget>((agent) {
+            return Card(
+              child: ListTile(
+                leading: const Icon(Icons.smart_toy),
+                title: Text(agent["name"]),
+                subtitle: Text(agent["description"]),
+              ),
+            );
+          }).toList(),
+
+          const SizedBox(height: 30),
+
+          const Text(
+            "Recommended Actions",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.trending_up),
+              title: Text("Increase ETF exposure"),
+            ),
+          ),
+
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.currency_bitcoin),
+              title: Text("Reduce crypto allocation"),
+            ),
+          ),
+
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.workspace_premium),
+              title: Text("Add gold hedge"),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

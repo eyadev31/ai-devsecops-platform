@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -10,77 +9,120 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+
   final ApiService _apiService = ApiService();
-  late Future<UserProfile> _futureProfile;
+
+  Map<String, dynamic>? _profile;
+
+  bool _isLoading = true;
+
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _futureProfile = _apiService.getUserProfile(1);
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+
+    try {
+
+      final profile = await _apiService.getUserProfile(1);
+
+      if (!mounted) return;
+
+      setState(() {
+        _profile = profile;
+        _isLoading = false;
+      });
+
+    } catch (e) {
+
+      if (!mounted) return;
+
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<UserProfile>(
-      future: _futureProfile,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
 
-        if (snapshot.hasError) {
-          return Center(child: Text('Erreur: ${snapshot.error}'));
-        }
+    return Scaffold(
 
-        if (!snapshot.hasData) {
-          return const Center(child: Text('Aucune donnée'));
-        }
+      appBar: AppBar(
+        title: const Text("Investor Profile"),
+      ),
 
-        final profile = snapshot.data!;
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+              ? Center(child: Text(_errorMessage!))
+              : buildProfile(),
 
-        return ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            const Text(
-              'Profil investisseur',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget buildProfile() {
+
+    final name = _profile?["name"] ?? "Unknown";
+    final risk = _profile?["risk_level"] ?? "Unknown";
+    final horizon = _profile?["horizon"] ?? "Unknown";
+    final objective = _profile?["objective"] ?? "Unknown";
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.person),
+              title: Text(name),
+              subtitle: const Text("Investor Name"),
             ),
-            const SizedBox(height: 20),
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-              child: ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Nom'),
-                subtitle: Text(profile.name),
-              ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.warning),
+              title: Text(risk),
+              subtitle: const Text("Risk Level"),
             ),
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-              child: ListTile(
-                leading: const Icon(Icons.trending_up),
-                title: const Text('Tolérance au risque'),
-                subtitle: Text(profile.riskLevel),
-              ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.timeline),
+              title: Text(horizon),
+              subtitle: const Text("Investment Horizon"),
             ),
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-              child: ListTile(
-                leading: const Icon(Icons.schedule),
-                title: const Text('Horizon d’investissement'),
-                subtitle: Text(profile.horizon),
-              ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.flag),
+              title: Text(objective),
+              subtitle: const Text("Financial Objective"),
             ),
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-              child: ListTile(
-                leading: const Icon(Icons.flag),
-                title: const Text('Objectif'),
-                subtitle: Text(profile.objective),
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }
+
+

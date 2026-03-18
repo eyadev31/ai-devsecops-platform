@@ -6,6 +6,7 @@ services:
     depends_on:
       - user_service
       - portfolio_service
+      - ai_service
     networks:
       - app_network
 
@@ -19,5 +20,6 @@ services:
     networks:
       - app_network
 
-networks:
-  app_network:
+  ai_service:
+    build: ./ai_service
+    container_name:

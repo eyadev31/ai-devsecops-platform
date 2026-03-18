@@ -1,0 +1,42 @@
+# ============================================================
+# Hybrid Intelligence Portfolio System — Agent 1 Dependencies
+# Macro & Market Intelligence System
+# ============================================================
+
+# --- Data Ingestion ---
+requests>=2.31.0              # HTTP client for Binance & TwelveData APIs
+fredapi>=0.5.1                # Federal Reserve Economic Data (FRED)
+
+# --- Data Processing & Scientific Computing ---
+pandas>=2.1.0                 # DataFrames and time-series manipulation
+numpy>=1.24.0                 # Numerical computing
+scipy>=1.11.0                 # Statistical functions, signal processing
+
+# --- Machine Learning ---
+scikit-learn>=1.3.0           # Random Forest, preprocessing, metrics
+hmmlearn>=0.3.0               # Hidden Markov Models for regime detection
+
+# --- LLM Integration ---
+google-generativeai>=0.8.0    # Google Gemini API (default provider)
+
+# --- Configuration & Validation ---
+python-dotenv>=1.0.0          # Environment variable management
+pydantic>=2.5.0               # Data validation and JSON schema
+
+# --- Logging & Utilities ---
+structlog>=23.1.0             # Structured logging (production-grade)
+
+# --- Testing ---
+pytest>=7.4.0                 # Test framework
+pytest-asyncio>=0.21.0        # Async test support
+pytest-cov>=4.1.0             # Coverage reporting
+
+# --- Agent 5: News Sentiment Intelligence ---
+feedparser>=6.0.0             # RSS feed parsing for news collection
+sentence-transformers>=2.2.0  # Sentence embeddings (all-MiniLM-L6-v2)
+transformers>=4.35.0          # FinBERT financial sentiment model
+torch>=2.0.0                  # PyTorch backend for transformers
+spacy>=3.7.0                  # NER entity extraction
+
+fastapi
+uvicorn

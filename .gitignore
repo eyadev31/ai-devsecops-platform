@@ -1,11 +1,53 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 .venv/
-terraform/.terraform/
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
-*.tfstate
-*.tfstate.backup
+
+# JetBrains
+.idea/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+**/build/
+.pub-cache/
+.pub/
+ios/Pods/
+
+# Android
+**/android/.gradle/
+**/android/local.properties
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flutter
 portfolio_mind_mobile/build/
 portfolio_mind_mobile/.dart_tool/
-portfolio_mind_mobile/.flutter-plugins
-portfolio_mind_mobile/.flutter-plugins-dependencies
-portfolio_mind_mobile/.packages
+
+# Terraform
+terraform/.terraform/
+*.tfstate
+*.tfstate.*
+
+# Expo / local dev
+ai_module/api/.expo/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs / env
+.env
+*.log

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+
+import 'theme/app_theme.dart';
+import 'utils/app_constants.dart';
+import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/portfolio_screen.dart';
 import 'screens/recommendation_screen.dart';
+import 'screens/settings_screen.dart';
 
 void main() {
   runApp(const PortfolioMindApp());
@@ -14,18 +19,10 @@ class PortfolioMindApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Portfolio Mind',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF7F4FA),
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-        ),
-      ),
-      home: const MainNavigationScreen(),
+      title: AppConstants.appName,
+      theme: AppTheme.lightTheme,
+      home: const SplashScreen(),
     );
   }
 }
@@ -40,38 +37,45 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    ProfileScreen(),
-    PortfolioScreen(),
-    RecommendationScreen(),
-  ];
-
-  final List<String> _titles = const [
-    'Portfolio Mind',
-    'Profil utilisateur',
-    'Portefeuille',
-    'Recommandation IA',
+  late final List<Widget> _pages = [
+    const HomeScreen(),
+    const ProfileScreen(),
+    const PortfolioScreen(),
+    const RecommendationScreen(),
+    const SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_currentIndex]),
-      ),
-      body: _screens[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'Accueil'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profil'),
-          NavigationDestination(icon: Icon(Icons.account_balance_wallet), label: 'Portefeuille'),
-          NavigationDestination(icon: Icon(Icons.auto_awesome), label: 'IA'),
-        ],
-        onDestinationSelected: (index) {
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
           setState(() => _currentIndex = index);
         },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Accueil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_rounded),
+            label: 'Profil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance_wallet_rounded),
+            label: 'Portefeuille',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_awesome_rounded),
+            label: 'IA',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_rounded),
+            label: 'À propos',
+          ),
+        ],
       ),
     );
   }

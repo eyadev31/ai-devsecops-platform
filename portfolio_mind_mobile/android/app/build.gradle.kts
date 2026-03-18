@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.portfolio_mind_mobile"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -42,3 +42,4 @@ android {
 flutter {
     source = "../.."
 }
+
